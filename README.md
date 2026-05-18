@@ -137,7 +137,7 @@ A app se integra com uma **API Node.js + Express**:
 ### Configuração
 Edite `.env`:
 ```env
-EXPO_PUBLIC_API_URL=http://localhost:3000
+EXPO_PUBLIC_API_URL=https://api-jose-jhbt.onrender.com
 ```
 
 ---
