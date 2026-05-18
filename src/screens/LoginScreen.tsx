@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import {
     ActivityIndicator,
@@ -10,6 +11,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { BRAND } from '../../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { isValidEmail } from '../utils/formatting';
 
@@ -65,110 +67,235 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-gradient-to-b from-indigo-600 via-purple-600 to-pink-600"
+    <LinearGradient
+      colors={[BRAND.primary, BRAND.secondary, BRAND.accent]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={{ flex: 1 }}
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 justify-center items-center px-6 py-10">
-          {/* Logo */}
-          <View className="items-center mb-12 mt-8">
-            <View className="w-32 h-32 bg-white/20 backdrop-blur-xl rounded-3xl items-center justify-center mb-6 border-2 border-white/30">
-              <Text className="text-7xl">🎈</Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              paddingHorizontal: 24,
+              paddingVertical: 40,
+            }}
+          >
+            {/* Logo */}
+            <View style={{ alignItems: 'center', marginBottom: 48, marginTop: 32 }}>
+              <View
+                style={{
+                  width: 128,
+                  height: 128,
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: 32,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 24,
+                  borderWidth: 2,
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                }}
+              >
+                <Text style={{ fontSize: 56 }}>🎉</Text>
+              </View>
+              <Text style={{ color: 'white', fontSize: 32, fontWeight: 'bold', letterSpacing: 1 }}>
+                JDE
+              </Text>
+              <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 16, marginTop: 8 }}>
+                Jose Decorando Encantando
+              </Text>
             </View>
-            <Text className="text-white text-4xl font-bold tracking-tight">JDE</Text>
-            <Text className="text-white/80 text-base mt-2">José Decorando Encantando</Text>
-          </View>
 
-          {/* Form Card */}
-          <View className="w-full bg-white/95 backdrop-blur rounded-3xl p-8 shadow-2xl">
-            <Text className="text-slate-800 text-2xl font-bold mb-1 text-center">
-              {isLogin ? 'Entrar' : 'Criar Conta'}
-            </Text>
-            <Text className="text-slate-500 text-sm mb-6 text-center">
-              {isLogin ? 'Acesse sua conta JDE' : 'Registre-se para começar'}
-            </Text>
+            {/* Form Card */}
+            <View
+              style={{
+                width: '100%',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: 24,
+                padding: 32,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.3,
+                shadowRadius: 20,
+                elevation: 10,
+              }}
+            >
+              <Text
+                style={{
+                  color: '#1F2937',
+                  fontSize: 24,
+                  fontWeight: 'bold',
+                  marginBottom: 4,
+                  textAlign: 'center',
+                }}
+              >
+                {isLogin ? 'Entrar' : 'Criar Conta'}
+              </Text>
+              <Text
+                style={{
+                  color: '#6B7280',
+                  fontSize: 14,
+                  marginBottom: 24,
+                  textAlign: 'center',
+                }}
+              >
+                {isLogin ? 'Acesse sua conta JDE' : 'Registre-se para começar'}
+              </Text>
 
-            {/* Nome (só em registro) */}
-            {!isLogin && (
+              {/* Nome (só em registro) */}
+              {!isLogin && (
+                <TextInput
+                  placeholder="Nome Completo"
+                  value={nome}
+                  onChangeText={setNome}
+                  placeholderTextColor="#CBD5E1"
+                  style={{
+                    backgroundColor: '#F3F4F6',
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                    borderRadius: 16,
+                    paddingHorizontal: 20,
+                    paddingVertical: 16,
+                    marginBottom: 16,
+                    fontSize: 16,
+                    color: '#1F2937',
+                  }}
+                  editable={!loading}
+                />
+              )}
+
+              {/* Email */}
               <TextInput
-                placeholder="Nome Completo"
-                value={nome}
-                onChangeText={setNome}
-                placeholderTextColor="#cbd5e1"
-                className="bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 mb-4 text-base"
+                ref={emailInputRef}
+                placeholder="E-mail"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                placeholderTextColor="#CBD5E1"
+                style={{
+                  backgroundColor: '#F3F4F6',
+                  borderWidth: 1,
+                  borderColor: '#E5E7EB',
+                  borderRadius: 16,
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  color: '#1F2937',
+                }}
                 editable={!loading}
               />
-            )}
 
-            {/* Email */}
-            <TextInput
-              ref={emailInputRef}
-              placeholder="E-mail"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#cbd5e1"
-              className="bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 mb-4 text-base"
-              editable={!loading}
-            />
+              {/* Senha */}
+              <TextInput
+                placeholder="Senha"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor="#CBD5E1"
+                style={{
+                  backgroundColor: '#F3F4F6',
+                  borderWidth: 1,
+                  borderColor: '#E5E7EB',
+                  borderRadius: 16,
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                  marginBottom: 24,
+                  fontSize: 16,
+                  color: '#1F2937',
+                }}
+                editable={!loading}
+              />
 
-            {/* Senha */}
-            <TextInput
-              placeholder="Senha"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor="#cbd5e1"
-              className="bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 mb-6 text-base"
-              editable={!loading}
-            />
-
-            {/* Erro */}
-            {error && (
-              <View className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
-                <Text className="text-red-700 text-sm">{error}</Text>
-              </View>
-            )}
-
-            {/* Botão Principal */}
-            <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={loading}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-2xl active:opacity-90"
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white text-center font-semibold text-lg">
-                  {isLogin ? 'Entrar' : 'Registrar'}
-                </Text>
+              {/* Erro */}
+              {error && (
+                <View
+                  style={{
+                    backgroundColor: '#FEE2E2',
+                    borderWidth: 1,
+                    borderColor: '#FECACA',
+                    borderRadius: 16,
+                    padding: 16,
+                    marginBottom: 24,
+                  }}
+                >
+                  <Text style={{ color: '#991B1B', fontSize: 14 }}>{error}</Text>
+                </View>
               )}
-            </TouchableOpacity>
 
-            {/* Toggle entre Login e Registro */}
-            <View className="flex-row items-center justify-center mt-6">
-              <Text className="text-slate-600 text-sm">
-                {isLogin ? 'Não tem conta? ' : 'Já tem conta? '}
-              </Text>
-              <TouchableOpacity onPress={() => setIsLogin(!isLogin)} disabled={loading}>
-                <Text className="text-indigo-600 font-semibold text-sm">
-                  {isLogin ? 'Registre-se' : 'Entre'}
+              {/* Botão Principal */}
+              <LinearGradient
+                colors={[BRAND.primary, BRAND.accent]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ borderRadius: 16, marginBottom: 16 }}
+              >
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  disabled={loading}
+                  style={{ paddingVertical: 16 }}
+                >
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text
+                      style={{
+                        color: 'white',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                        fontSize: 16,
+                      }}
+                    >
+                      {isLogin ? 'Entrar' : 'Registrar'}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </LinearGradient>
+
+              {/* Toggle entre Login e Registro */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginTop: 24,
+                }}
+              >
+                <Text style={{ color: '#6B7280', fontSize: 14 }}>
+                  {isLogin ? 'Não tem conta? ' : 'Já tem conta? '}
                 </Text>
-              </TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsLogin(!isLogin)} disabled={loading}>
+                  <Text style={{ color: BRAND.primary, fontWeight: '600', fontSize: 14 }}>
+                    {isLogin ? 'Registre-se' : 'Entre'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
 
-          {/* Footer */}
-          <Text className="text-white/70 text-xs mt-8 text-center">
-            API: {process.env.EXPO_PUBLIC_API_URL}
-          </Text>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            {/* Footer */}
+            <Text
+              style={{
+                color: 'rgba(255, 255, 255, 0.7)',
+                fontSize: 12,
+                marginTop: 32,
+                textAlign: 'center',
+              }}
+            >
+              API: {process.env.EXPO_PUBLIC_API_URL}
+            </Text>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }

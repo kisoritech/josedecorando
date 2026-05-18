@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
@@ -8,6 +9,7 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
+import { BRAND } from '../../constants/theme';
 import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
 import { formatCurrency } from '../utils/formatting';
@@ -52,105 +54,193 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-slate-50 justify-center items-center">
-        <ActivityIndicator size="large" color="#4f46e5" />
+      <View style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={BRAND.primary} />
       </View>
     );
   }
 
   return (
     <ScrollView
-      className="flex-1 bg-slate-50"
+      style={{ flex: 1, backgroundColor: '#F9FAFB' }}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={BRAND.primary} />
       }
     >
-      {/* Header */}
-      <View className="bg-gradient-to-b from-indigo-600 to-purple-600 pt-12 pb-8 px-6">
-        <View className="flex-row items-center gap-4 mb-4">
-          <View className="w-14 h-14 bg-white/20 rounded-3xl items-center justify-center">
-            <Text className="text-4xl">🎈</Text>
+      {/* Header com Gradiente e Logo */}
+      <LinearGradient
+        colors={[BRAND.primary, BRAND.secondary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: 48, paddingBottom: 32, paddingHorizontal: 24 }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: 28,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 32 }}>🎉</Text>
           </View>
-          <View className="flex-1">
-            <Text className="text-white text-3xl font-bold">JDE</Text>
-            <Text className="text-white/80 text-sm">Gestão Completa</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: 'white', fontSize: 28, fontWeight: 'bold' }}>JDE</Text>
+            <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 14 }}>
+              Jose Decorando Encantando
+            </Text>
           </View>
         </View>
-        <Text className="text-white text-lg">
-          Olá, <Text className="font-semibold">{user?.nome || 'Usuário'}</Text> 👋
+        <Text style={{ color: 'white', fontSize: 18 }}>
+          Olá, <Text style={{ fontWeight: 'bold' }}>{user?.nome || 'Usuário'}</Text> 👋
         </Text>
-      </View>
+      </LinearGradient>
 
       {/* Cards Principais */}
-      <View className="px-6 py-6 space-y-4">
+      <View style={{ paddingHorizontal: 24, paddingVertical: 24, gap: 16 }}>
         {/* Faturamento Total */}
-        <View className="bg-white rounded-3xl p-6 shadow-sm">
-          <View className="flex-row items-center justify-between">
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 24,
+            padding: 24,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
-              <Text className="text-slate-500 text-sm mb-1">Faturamento Total</Text>
-              <Text className="text-4xl font-bold text-emerald-600">
+              <Text style={{ color: '#6B7280', fontSize: 14, marginBottom: 8 }}>
+                Faturamento Total
+              </Text>
+              <Text style={{ fontSize: 32, fontWeight: 'bold', color: BRAND.success }}>
                 {formatCurrency(dashboard?.faturamento_total || 0)}
               </Text>
             </View>
-            <Text className="text-5xl">💰</Text>
+            <Text style={{ fontSize: 40 }}>💰</Text>
           </View>
         </View>
 
         {/* Grid 2 colunas */}
-        <View className="flex-row gap-4">
+        <View style={{ flexDirection: 'row', gap: 16 }}>
           {/* Produtos */}
-          <View className="flex-1 bg-white rounded-3xl p-5 shadow-sm">
-            <Text className="text-slate-500 text-xs mb-2">Produtos</Text>
-            <Text className="text-3xl font-bold text-indigo-600 mb-1">
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'white',
+              borderRadius: 24,
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 3,
+              elevation: 3,
+            }}
+          >
+            <Text style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Produtos</Text>
+            <Text style={{ fontSize: 28, fontWeight: 'bold', color: BRAND.secondary, marginBottom: 4 }}>
               {dashboard?.total_produtos}
             </Text>
-            <Text className="text-xs text-slate-400">
+            <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
               {dashboard?.produtos_disponiveis} disponíveis
             </Text>
           </View>
 
           {/* Clientes */}
-          <View className="flex-1 bg-white rounded-3xl p-5 shadow-sm">
-            <Text className="text-slate-500 text-xs mb-2">Clientes</Text>
-            <Text className="text-3xl font-bold text-blue-600 mb-1">
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: 'white',
+              borderRadius: 24,
+              padding: 20,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 3,
+              elevation: 3,
+            }}
+          >
+            <Text style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Clientes</Text>
+            <Text style={{ fontSize: 28, fontWeight: 'bold', color: BRAND.accent, marginBottom: 4 }}>
               {dashboard?.total_clientes}
             </Text>
-            <Text className="text-xs text-slate-400">Cadastrados</Text>
+            <Text style={{ fontSize: 12, color: '#9CA3AF' }}>Cadastrados</Text>
           </View>
         </View>
 
         {/* Locações Ativas */}
-        <View className="bg-white rounded-3xl p-6 shadow-sm">
-          <View className="flex-row items-center justify-between">
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 24,
+            padding: 24,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <View>
-              <Text className="text-slate-500 text-sm mb-1">Locações Ativas</Text>
-              <Text className="text-4xl font-bold text-amber-600">
+              <Text style={{ color: '#6B7280', fontSize: 14, marginBottom: 8 }}>
+                Locações Ativas
+              </Text>
+              <Text style={{ fontSize: 32, fontWeight: 'bold', color: BRAND.gold }}>
                 {dashboard?.locacoes_ativas}
               </Text>
             </View>
-            <Text className="text-5xl">📦</Text>
+            <Text style={{ fontSize: 40 }}>📦</Text>
           </View>
         </View>
 
         {/* Pagamentos */}
-        <View className="bg-white rounded-3xl p-6 shadow-sm">
-          <Text className="text-slate-800 font-semibold mb-4">Pagamentos</Text>
-          <View className="space-y-3">
-            <View className="flex-row justify-between items-center pb-3 border-b border-slate-100">
-              <View className="flex-row items-center gap-3">
-                <Text className="text-2xl">📱</Text>
-                <Text className="text-slate-700">PIX Recebido</Text>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 24,
+            padding: 24,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3,
+            elevation: 3,
+          }}
+        >
+          <Text style={{ color: '#1F2937', fontWeight: 'bold', marginBottom: 16, fontSize: 16 }}>
+            Pagamentos
+          </Text>
+          <View style={{ gap: 12 }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingBottom: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: '#E5E7EB',
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Text style={{ fontSize: 24 }}>📱</Text>
+                <Text style={{ color: '#1F2937' }}>PIX Recebido</Text>
               </View>
-              <Text className="font-semibold text-emerald-600">
+              <Text style={{ fontWeight: '600', color: BRAND.success }}>
                 {formatCurrency(dashboard?.total_pix || 0)}
               </Text>
             </View>
-            <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center gap-3">
-                <Text className="text-2xl">💵</Text>
-                <Text className="text-slate-700">Dinheiro</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Text style={{ fontSize: 24 }}>💵</Text>
+                <Text style={{ color: '#1F2937' }}>Dinheiro</Text>
               </View>
-              <Text className="font-semibold text-amber-600">
+              <Text style={{ fontWeight: '600', color: BRAND.gold }}>
                 {formatCurrency(dashboard?.total_dinheiro || 0)}
               </Text>
             </View>
@@ -158,14 +248,18 @@ export default function DashboardScreen() {
         </View>
 
         {/* Botão Atualizar */}
-        <TouchableOpacity
-          onPress={onRefresh}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-3xl mt-4"
+        <LinearGradient
+          colors={[BRAND.primary, BRAND.accent]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ borderRadius: 24, marginTop: 16, marginBottom: 16 }}
         >
-          <Text className="text-white text-center font-semibold text-lg">
-            🔄 Atualizar Dashboard
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={onRefresh} style={{ paddingVertical: 16 }}>
+            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>
+              🔄 Atualizar Dashboard
+            </Text>
+          </TouchableOpacity>
+        </LinearGradient>
       </View>
     </ScrollView>
   );

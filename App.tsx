@@ -2,8 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { BRAND } from './constants/theme';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 // Screens
@@ -20,14 +21,15 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#4f46e5',
-        tabBarInactiveTintColor: '#94a3b8',
+        tabBarActiveTintColor: BRAND.primary,
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: '#e2e8f0',
+          borderTopColor: '#E5E7EB',
           paddingBottom: 8,
           paddingTop: 8,
           height: 60,
+          backgroundColor: '#FFFFFF',
         },
       }}
     >
@@ -37,7 +39,7 @@ function TabNavigator() {
         options={{
           title: 'Início',
           tabBarLabel: 'Início',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🎈</Text>,
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🎉</Text>,
         }}
       />
       <Tab.Screen
@@ -91,13 +93,10 @@ export default function App() {
       <AuthProvider>
         <NavigationContainer>
           <RootNavigator />
-          <StatusBar barStyle="dark-content" />
+          <StatusBar />
         </NavigationContainer>
       </AuthProvider>
     </SafeAreaProvider>
   );
 }
-
-// Import para Text element
-import { Text } from 'react-native';
 

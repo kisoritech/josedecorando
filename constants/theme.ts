@@ -1,29 +1,47 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Jose Decorando Encantando - Theme Configuration
+ * Professional color palette based on brand identity
  */
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
+// Brand Colors - Inspired by Jose Decorando Encantando logo
+export const BRAND = {
+  primary: '#FF3B4A',      // Red (festive, energetic)
+  secondary: '#0052CC',    // Blue (trust, professional)
+  accent: '#7C3AED',       // Purple (creativity, elegance)
+  gold: '#F59E0B',         // Gold/Amber (celebration, premium)
+  success: '#10B981',      // Green (positive, growth)
+  warning: '#F59E0B',      // Amber
+  error: '#EF4444',        // Red
+};
 
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    text: '#1F2937',        // Dark gray
+    textSecondary: '#6B7280', // Medium gray
+    background: '#FFFFFF',
+    backgroundSecondary: '#F9FAFB',
+    tint: BRAND.primary,
+    icon: BRAND.secondary,
+    tabIconDefault: '#9CA3AF',
+    tabIconSelected: BRAND.primary,
+    border: '#E5E7EB',
+    success: BRAND.success,
+    error: BRAND.error,
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    text: '#F3F4F6',        // Light gray
+    textSecondary: '#D1D5DB',
+    background: '#111827',
+    backgroundSecondary: '#1F2937',
+    tint: BRAND.gold,
+    icon: '#9CA3AF',
+    tabIconDefault: '#6B7280',
+    tabIconSelected: BRAND.gold,
+    border: '#374151',
+    success: '#6EE7B7',
+    error: '#F87171',
   },
 };
 
