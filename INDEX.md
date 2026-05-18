@@ -1,41 +1,116 @@
-# 📖 Índice Completo de Documentação - JDE Mobile
+# � Índice Completo - JDE Venda (Atualizado com Documentação de API)
 
-Bem-vindo! Este arquivo organiza **toda a documentação** do projeto em **ordem recomendada de leitura**.
+## 🚀 Comece Aqui
+
+### Para Desenvolvedores em Pressa (⏱️ 5 min)
+1. Leia: [QUICK_START.md](QUICK_START.md)
+2. Execute: `node scripts/health-check.js`
+3. Rode: `expo start --clear`
+
+### Para Entender as Mudanças (⏱️ 15 min)
+1. Leia: [API_FIXES_SUMMARY.md](API_FIXES_SUMMARY.md)
+2. Revise: [VERIFICATION_SUMMARY.md](VERIFICATION_SUMMARY.md)
+
+### Para Dominar a Arquitetura (⏱️ 30 min)
+1. Leia: [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)
+2. Estude: [API_ENDPOINTS.md](API_ENDPOINTS.md)
+3. Explore: [FINAL_REPORT.md](FINAL_REPORT.md)
 
 ---
 
-## 🎯 Para Diferentes Públicos
+## 📚 Documentação de API (NOVA)
 
-### 👤 **Sou Novo Neste Projeto**
-1. [WELCOME.md](WELCOME.md) - Boas-vindas (3 min) ⭐⭐⭐
-2. [QUICKSTART.md](QUICKSTART.md) - Começar em 5 min (5 min) ⭐⭐⭐
-3. [MOBILE_README.md](MOBILE_README.md) - Documentação completa (20 min)
-4. `npm start` - Testar a app (5 min)
+### 🔗 Referência Técnica
+| Documento | Foco | Conteúdo |
+|-----------|------|----------|
+| **[API_ENDPOINTS.md](API_ENDPOINTS.md)** | API | Lista completa de endpoints |
+| **[API_FIXES_SUMMARY.md](API_FIXES_SUMMARY.md)** | Resumo | Mudanças realizadas |
+| **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** | Arquitetura | Diagramas e fluxos |
+| **[VERIFICATION_SUMMARY.md](VERIFICATION_SUMMARY.md)** | Verificação | Detalhes de mudanças |
+| **[FINAL_REPORT.md](FINAL_REPORT.md)** | Relatório | Relatório técnico |
+| **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** | Suporte | Erros e soluções |
+| **[QUICK_START.md](QUICK_START.md)** | Rápido | 3 passos para começar |
+| **[RESOURCES.md](RESOURCES.md)** | Recursos | Visão geral de recursos |
 
-### 👨‍💻 **Sou Developer Novo**
-1. [WELCOME.md](WELCOME.md) - Contexto (3 min)
-2. [QUICKSTART.md](QUICKSTART.md) - Setup (5 min)
-3. [ARCHITECTURE.md](ARCHITECTURE.md) - Como funciona (20 min)
+### 🛠️ Ferramentas Disponíveis
+- **[scripts/health-check.js](scripts/health-check.js)** - Verificar saúde do projeto
+- **[scripts/test-api.ts](scripts/test-api.ts)** - Testar conectividade
+- **[src/utils/api-config-checker.ts](src/utils/api-config-checker.ts)** - Verificador de config
+
+---
+
+## 📖 Documentação Original do Projeto
+
+### 🎯 Para Diferentes Públicos
+
+#### 👤 **Sou Novo Neste Projeto**
+1. [WELCOME.md](WELCOME.md) - Boas-vindas (3 min)
+2. [QUICK_START.md](QUICK_START.md) - Começar em 3 passos (5 min) ⭐ NOVO
+3. [QUICKSTART.md](QUICKSTART.md) - Setup original (5 min)
+4. [MOBILE_README.md](MOBILE_README.md) - Documentação completa (20 min)
+
+#### 👨‍💻 **Sou Developer**
+1. [API_ENDPOINTS.md](API_ENDPOINTS.md) - Endpoints da API (10 min) ⭐ NOVO
+2. [ARCHITECTURE.md](ARCHITECTURE.md) - Como funciona (20 min)
+3. [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) - Diagramas (10 min) ⭐ NOVO
 4. [BEST_PRACTICES.md](BEST_PRACTICES.md) - Padrões a seguir (20 min)
-5. [Explore src/](./src) - Explore o código
 
-### 🧪 **Sou QA/Tester**
-1. [WELCOME.md](WELCOME.md) - Contexto (3 min)
-2. [QUICKSTART.md](QUICKSTART.md) - Setup (5 min)
-3. [TESTING_MOBILE.md](TESTING_MOBILE.md) - Como testar (30 min)
+#### 🧪 **Sou QA/Tester**
+1. [QUICK_START.md](QUICK_START.md) - Setup (5 min) ⭐ NOVO
+2. [TESTING_MOBILE.md](TESTING_MOBILE.md) - Como testar (30 min)
+3. [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Problemas (20 min) ⭐ NOVO
 4. [VALIDATION_CHECKLIST.md](VALIDATION_CHECKLIST.md) - Checklist (15 min)
-5. `npm start` - Começar testes
 
-### 📊 **Sou Product Manager/Stakeholder**
-1. [WELCOME.md](WELCOME.md) - Visão geral (3 min)
-2. [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - Resumo técnico (10 min)
-3. [MOBILE_README.md](MOBILE_README.md) - Funcionalidades (15 min)
+#### 🔧 **Vou Manter Este Código**
+1. [ARCHITECTURE.md](ARCHITECTURE.md) - Como funciona
+2. [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) - Diagramas ⭐ NOVO
+3. [API_ENDPOINTS.md](API_ENDPOINTS.md) - Endpoints ⭐ NOVO
+4. [BEST_PRACTICES.md](BEST_PRACTICES.md) - Padrões
+5. [SETUP_SUMMARY.md](SETUP_SUMMARY.md) - Resumo técnico
 
-### 🔧 **Vou Manter Este Código**
-1. [ARCHITECTURE.md](ARCHITECTURE.md) - Como funciona (20 min)
-2. [BEST_PRACTICES.md](BEST_PRACTICES.md) - Padrões (20 min)
-3. [SETUP_SUMMARY.md](SETUP_SUMMARY.md) - Resumo técnico (10 min)
-4. [IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md) - O que foi feito (10 min)
+---
+
+## 🔗 URLs de Referência
+
+### API
+```
+URL Base: https://api-jose-jhbt.onrender.com
+Configuração: EXPO_PUBLIC_API_URL
+Timeout: 15000ms
+```
+
+### Documentação de API
+- [API_ENDPOINTS.md](API_ENDPOINTS.md) - Lista de endpoints
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Resolver problemas
+- [ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md) - Arquitetura
+
+---
+
+## ✅ Checklist Rápido
+
+- [ ] Leu [QUICK_START.md](QUICK_START.md)
+- [ ] Executou `node scripts/health-check.js`
+- [ ] Verificou `.env`
+- [ ] Instalou dependências com `npm install`
+- [ ] Rodou `expo start --clear`
+- [ ] Testou login
+- [ ] Acessou dashboard
+
+---
+
+## 🎉 O que foi novo?
+
+✨ **Documentação de API Completa** com:
+- ✅ Endpoints documentados
+- ✅ Troubleshooting detalhado
+- ✅ Diagramas de arquitetura
+- ✅ Scripts de teste
+- ✅ Guias de debug
+- ✅ Relatórios técnicos
+
+---
+
+**Data:** 18 de maio de 2026 | **Status:** ✅ PRONTO
 
 ---
 
