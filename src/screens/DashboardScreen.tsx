@@ -1,61 +1,54 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     RefreshControl,
     ScrollView,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 import { BRAND } from '../../constants/theme';
-import api from '../api/api';
 import { useAuth } from '../context/AuthContext';
+import { useData } from '../context/DataContext';
 import { formatCurrency } from '../utils/formatting';
-
-interface DashboardData {
-  total_clientes: string;
-  total_produtos: string;
-  produtos_disponiveis: string;
-  faturamento_total: string;
-  total_pix: string;
-  total_dinheiro: string;
-  locacoes_ativas: string;
-}
 
 export default function DashboardScreen() {
   const { user } = useAuth();
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { dashboard, dashboardLoading, dashboardError, loadDashboard, isRefreshing, refreshAllData } = useData();
 
-  const loadDashboard = async () => {
-    try {
-      const response = await api.get('/api/dashboard/resumo');
-      setDashboard(response.data);
-    } catch (err) {
-      console.error('Erro ao carregar dashboard:', err);
-      Alert.alert('Erro', 'Não foi possível carregar o dashboard');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const onRefresh = useCallback(() => {
+    refreshAllData();
+  }, [refreshAllData]);
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadDashboard();
-  };
-
-  if (loading) {
+  if (dashboardLoading && !dashboard) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color={BRAND.primary} />
+      </View>
+    );
+  }
+
+  if (dashboardError && !dashboard) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center', color: '#EF4444' }}>
+          ⚠️ Erro ao Carregar
+        </Text>
+        <Text style={{ fontSize: 16, textAlign: 'center', color: '#6B7280', marginBottom: 24 }}>
+          {dashboardError}
+        </Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: BRAND.primary,
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            borderRadius: 8,
+          }}
+          onPress={loadDashboard}
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Tentar Novamente</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -64,7 +57,7 @@ export default function DashboardScreen() {
     <ScrollView
       style={{ flex: 1, backgroundColor: '#F9FAFB' }}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={BRAND.primary} />
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND.primary} />
       }
     >
       {/* Header com Gradiente e Logo */}

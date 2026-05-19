@@ -6,6 +6,7 @@ import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { BRAND } from './constants/theme';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { DataProvider } from './src/context/DataContext';
 
 // Screens
 import DashboardScreen from './src/screens/DashboardScreen';
@@ -91,10 +92,12 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <NavigationContainer>
-          <RootNavigator />
-          <StatusBar />
-        </NavigationContainer>
+        <DataProvider>
+          <NavigationContainer>
+            <RootNavigator />
+            <StatusBar />
+          </NavigationContainer>
+        </DataProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

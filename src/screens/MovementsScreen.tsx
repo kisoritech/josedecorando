@@ -1,58 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     FlatList,
     RefreshControl,
     Text,
     View
 } from 'react-native';
-import api from '../api/api';
+import { useData } from '../context/DataContext';
 import { formatCurrency, formatDate } from '../utils/formatting';
 
-interface Movement {
-  id?: number;
-  produto_nome?: string;
-  produto_id?: number;
-  tipo: 'entrada' | 'saida';
-  quantidade: number;
-  valor_unitario?: number | string;
-  data: string;
-  observacao?: string;
-  origem?: string;
-}
-
 export default function MovementsScreen() {
-  const [movements, setMovements] = useState<Movement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { movements, movementsLoading, movementsError, loadMovements, isRefreshing, refreshAllData } = useData();
 
-  const loadMovements = async () => {
-    try {
-      const response = await api.get('/api/dashboard/movimentacao-geral');
-      setMovements(response.data || []);
-    } catch (err) {
-      console.error('Erro ao carregar movimentações:', err);
-      Alert.alert('Erro', 'Não foi possível carregar as movimentações');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const onRefresh = useCallback(() => {
+    refreshAllData();
+  }, [refreshAllData]);
 
-  useEffect(() => {
-    loadMovements();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadMovements();
-  };
-
-  if (loading) {
+  if (movementsLoading && movements.length === 0) {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
+  if (movementsError && movements.length === 0) {
+    return (
+      <View className="flex-1 bg-slate-50 justify-center items-center">
+        <Text className="text-red-500 text-center text-base mb-4">{movementsError}</Text>
+        <Text className="text-slate-400 text-center text-base">Tente novamente mais tarde</Text>
       </View>
     );
   }
@@ -70,9 +46,9 @@ export default function MovementsScreen() {
         data={movements}
         keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
         }
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 24 }}
         renderItem={({ item }) => (
           <View className="bg-white rounded-3xl p-5 mb-3 shadow-sm">
             <View className="flex-row justify-between items-start mb-3">
@@ -100,33 +76,24 @@ export default function MovementsScreen() {
               </View>
             </View>
 
-            <View className="flex-row justify-between items-center pt-3 border-t border-slate-100">
-              <View>
-                <Text className="text-slate-500 text-xs mb-1">Tipo</Text>
-                <Text className="text-slate-700 font-semibold text-sm">
-                  {item.tipo === 'entrada' ? '📥 Entrada' : '📤 Saída'}
+            {item.valor_unitario && (
+              <View className="flex-row justify-between items-center text-sm">
+                <Text className="text-slate-500">Valor Unitário</Text>
+                <Text className="font-semibold text-slate-700">
+                  {formatCurrency(item.valor_unitario)}
                 </Text>
               </View>
-              <View>
-                <Text className="text-slate-500 text-xs mb-1">Origem</Text>
-                <Text className="text-slate-700 font-semibold text-sm capitalize">
-                  {item.origem || 'ajuste'}
-                </Text>
-              </View>
-              {item.valor_unitario && (
-                <View>
-                  <Text className="text-slate-500 text-xs mb-1">Unit.</Text>
-                  <Text className="text-slate-700 font-semibold text-sm">
-                    {formatCurrency(item.valor_unitario)}
-                  </Text>
-                </View>
-              )}
-            </View>
+            )}
+            {item.origem && (
+              <Text className="text-slate-400 text-xs mt-2">Origem: {item.origem}</Text>
+            )}
           </View>
         )}
         ListEmptyComponent={
-          <View className="items-center justify-center py-12">
-            <Text className="text-slate-500 text-lg">📦 Nenhuma movimentação encontrada</Text>
+          <View className="flex-1 justify-center items-center py-16">
+            <Text className="text-slate-400 text-center text-base">
+              Nenhuma movimentação registrada
+            </Text>
           </View>
         }
       />

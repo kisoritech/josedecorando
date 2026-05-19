@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -12,17 +12,8 @@ import {
     View,
 } from 'react-native';
 import api from '../api/api';
+import { useData } from '../context/DataContext';
 import { formatCurrency } from '../utils/formatting';
-
-interface Product {
-  id: number;
-  nome: string;
-  preco_venda: number | string;
-  preco_custo: number | string;
-  quantidade: number;
-  tipo: string;
-  ativo: boolean;
-}
 
 interface ProductFormData {
   nome: string;
@@ -33,12 +24,10 @@ interface ProductFormData {
 }
 
 export default function ProductsScreen() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { products, productsLoading, productsError, loadProducts, isRefreshing, refreshAllData } = useData();
   const [search, setSearch] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [form, setForm] = useState<ProductFormData>({
     nome: '',
     preco_venda: '',
@@ -48,23 +37,15 @@ export default function ProductsScreen() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  const loadProducts = async () => {
-    try {
-      const response = await api.get('/api/produtos');
-      setProducts(response.data);
-    } catch (err) {
-      Alert.alert('Erro', 'Não foi possível carregar os produtos');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+  const filteredProducts = products.filter(p =>
+    p.nome.toLowerCase().includes(search.toLowerCase())
+  );
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+  const onRefresh = useCallback(() => {
+    refreshAllData();
+  }, [refreshAllData]);
 
-  const openModal = (product: Product | null = null) => {
+  const openModal = (product: any = null) => {
     if (product) {
       setEditingProduct(product);
       setForm({
@@ -85,6 +66,11 @@ export default function ProductsScreen() {
       });
     }
     setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setEditingProduct(null);
   };
 
   const saveProduct = async () => {
@@ -117,7 +103,7 @@ export default function ProductsScreen() {
         Alert.alert('Sucesso', 'Produto cadastrado');
       }
 
-      setModalVisible(false);
+      closeModal();
       loadProducts();
     } catch (err: any) {
       Alert.alert('Erro', err.response?.data?.message || 'Falha ao salvar');
@@ -145,11 +131,7 @@ export default function ProductsScreen() {
     ]);
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.nome.toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (loading) {
+  if (productsLoading && products.length === 0) {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#4f46e5" />
@@ -181,10 +163,7 @@ export default function ProductsScreen() {
         data={filteredProducts}
         keyExtractor={(item) => item.id.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => {
-            setRefreshing(true);
-            loadProducts();
-          }} tintColor="#4f46e5" />
+          <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
         }
         renderItem={({ item }) => (
           <View className="mx-4 mb-3 bg-white rounded-3xl p-5 shadow-sm">
@@ -242,9 +221,14 @@ export default function ProductsScreen() {
         <View className="flex-1 bg-black/40 justify-end">
           <View className="bg-white rounded-t-4xl p-6 pt-8">
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="text-2xl font-bold mb-6">
-                {editingProduct ? '✏️ Editar Produto' : '➕ Novo Produto'}
-              </Text>
+              <View className="flex-row justify-between items-center mb-6">
+                <Text className="text-2xl font-bold">
+                  {editingProduct ? '✏️ Editar Produto' : '➕ Novo Produto'}
+                </Text>
+                <TouchableOpacity onPress={closeModal}>
+                  <Text className="text-2xl font-bold">✕</Text>
+                </TouchableOpacity>
+              </View>
 
               <TextInput
                 placeholder="Nome do Produto"
@@ -287,7 +271,7 @@ export default function ProductsScreen() {
 
               <View className="flex-row gap-4">
                 <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
+                  onPress={closeModal}
                   disabled={submitting}
                   className="flex-1 py-4 border border-slate-300 rounded-2xl"
                 >

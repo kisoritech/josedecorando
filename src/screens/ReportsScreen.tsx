@@ -1,97 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     RefreshControl,
     ScrollView,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
-import api from '../api/api';
+import { useData } from '../context/DataContext';
 import { formatCurrency } from '../utils/formatting';
 
-interface ReportData {
-  financeiro: {
-    resumo?: {
-      total_lancamentos: string;
-      total_debitos: string;
-      total_creditos: string;
-      total_pago: string;
-      total_pendente: string;
-    };
-  };
-  vendas: {
-    resumo?: {
-      total_vendas: string;
-      faturamento_total: string;
-      ticket_medio: string;
-    };
-  };
-  locacoes: {
-    resumo?: {
-      total_locacoes: string;
-      ativas: string;
-      atrasadas: string;
-      devolvidas: string;
-    };
-  };
-  produtos: {
-    resumo?: {
-      total_produtos: string;
-      estoque_valor_total: string;
-    };
-  };
-}
-
 export default function ReportsScreen() {
-  const [reports, setReports] = useState<ReportData>({
-    financeiro: {},
-    vendas: {},
-    locacoes: {},
-    produtos: {},
-  });
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { reports, reportsLoading, reportsError, isRefreshing, refreshAllData } = useData();
   const [selectedReport, setSelectedReport] = useState<'financeiro' | 'vendas' | 'locacoes' | 'produtos' | null>(null);
 
-  const loadReports = async () => {
-    try {
-      const [fin, ven, loc, prod] = await Promise.all([
-        api.get('/api/dashboard/financeiro-completo'),
-        api.get('/api/dashboard/vendas-relatorio'),
-        api.get('/api/dashboard/locacoes-relatorio'),
-        api.get('/api/dashboard/produtos-relatorio'),
-      ]);
+  const onRefresh = useCallback(() => {
+    refreshAllData();
+  }, [refreshAllData]);
 
-      setReports({
-        financeiro: fin.data,
-        vendas: ven.data,
-        locacoes: loc.data,
-        produtos: prod.data,
-      });
-    } catch (err) {
-      console.error('Erro ao carregar relatórios:', err);
-      Alert.alert('Erro', 'Falha ao carregar relatórios');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    loadReports();
-  }, []);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    loadReports();
-  };
-
-  if (loading) {
+  if (reportsLoading && !reports.financeiro.resumo) {
     return (
       <View className="flex-1 bg-slate-50 justify-center items-center">
         <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
+  if (reportsError && !reports.financeiro.resumo) {
+    return (
+      <View className="flex-1 bg-slate-50 justify-center items-center">
+        <Text className="text-red-500 text-center text-base mb-4">{reportsError}</Text>
+        <TouchableOpacity
+          onPress={onRefresh}
+          className="bg-indigo-600 px-6 py-3 rounded-2xl"
+        >
+          <Text className="text-white font-bold">Tentar Novamente</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -100,112 +44,187 @@ export default function ReportsScreen() {
     <ScrollView
       className="flex-1 bg-slate-50"
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
+        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor="#4f46e5" />
       }
     >
       {/* Header */}
       <View className="bg-gradient-to-b from-indigo-600 to-purple-600 pt-12 pb-6 px-6">
         <Text className="text-white text-3xl font-bold">Relatórios</Text>
-        <Text className="text-white/80 text-sm">Análise Completa JDE</Text>
+        <Text className="text-white/80 text-sm">Análise e resumo do negócio</Text>
       </View>
 
-      {/* Reports Cards */}
-      <View className="px-6 py-6 space-y-4">
+      {/* Tab Navigation */}
+      <View className="flex-row gap-2 px-6 pt-6 pb-4 overflow-x-auto">
+        {[
+          { key: 'financeiro', label: '💰 Financeiro' },
+          { key: 'vendas', label: '📈 Vendas' },
+          { key: 'locacoes', label: '📦 Locações' },
+          { key: 'produtos', label: '🛍️ Produtos' },
+        ].map((tab) => (
+          <TouchableOpacity
+            key={tab.key}
+            onPress={() => setSelectedReport(tab.key as any)}
+            className={`px-4 py-2 rounded-full ${
+              selectedReport === tab.key ? 'bg-indigo-600' : 'bg-white'
+            }`}
+          >
+            <Text
+              className={`font-semibold text-sm ${
+                selectedReport === tab.key ? 'text-white' : 'text-slate-700'
+              }`}
+            >
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Report Content */}
+      <View className="px-6 pb-8">
         {/* Financeiro */}
-        <TouchableOpacity
-          onPress={() => setSelectedReport(selectedReport === 'financeiro' ? null : 'financeiro')}
-          className="bg-white rounded-3xl p-6 shadow-sm"
-        >
-          <View className="flex-row items-center justify-between mb-4">
-            <View>
-              <Text className="text-slate-500 text-sm mb-1">💰 Financeiro</Text>
-              <Text className="text-3xl font-bold text-emerald-600">
-                {formatCurrency(reports.financeiro.resumo?.total_pago || 0)}
-              </Text>
-            </View>
-            <Text className="text-3xl">📊</Text>
+        {selectedReport === 'financeiro' && reports.financeiro.resumo && (
+          <View className="space-y-4">
+            <Text className="text-2xl font-bold mb-4 text-slate-900">Resumo Financeiro</Text>
+            <ReportCard
+              title="Total de Lançamentos"
+              value={reports.financeiro.resumo.total_lancamentos}
+              icon="📋"
+            />
+            <ReportCard
+              title="Total Débitos"
+              value={formatCurrency(reports.financeiro.resumo.total_debitos)}
+              icon="📉"
+            />
+            <ReportCard
+              title="Total Créditos"
+              value={formatCurrency(reports.financeiro.resumo.total_creditos)}
+              icon="📈"
+            />
+            <ReportCard
+              title="Total Pago"
+              value={formatCurrency(reports.financeiro.resumo.total_pago)}
+              icon="✅"
+            />
+            <ReportCard
+              title="Total Pendente"
+              value={formatCurrency(reports.financeiro.resumo.total_pendente)}
+              icon="⏳"
+            />
           </View>
-          <View className="flex-row justify-between text-xs text-slate-600">
-            <Text>Débitos: {formatCurrency(reports.financeiro.resumo?.total_debitos || 0)}</Text>
-            <Text>Créditos: {formatCurrency(reports.financeiro.resumo?.total_creditos || 0)}</Text>
-          </View>
-        </TouchableOpacity>
+        )}
 
         {/* Vendas */}
-        <TouchableOpacity
-          onPress={() => setSelectedReport(selectedReport === 'vendas' ? null : 'vendas')}
-          className="bg-white rounded-3xl p-6 shadow-sm"
-        >
-          <View className="flex-row items-center justify-between mb-4">
-            <View>
-              <Text className="text-slate-500 text-sm mb-1">📦 Vendas</Text>
-              <Text className="text-3xl font-bold text-blue-600">
-                {reports.vendas.resumo?.total_vendas || 0}
-              </Text>
-            </View>
-            <Text className="text-3xl">🛍️</Text>
+        {selectedReport === 'vendas' && reports.vendas.resumo && (
+          <View className="space-y-4">
+            <Text className="text-2xl font-bold mb-4 text-slate-900">Resumo de Vendas</Text>
+            <ReportCard
+              title="Total de Vendas"
+              value={reports.vendas.resumo.total_vendas}
+              icon="🛒"
+            />
+            <ReportCard
+              title="Faturamento Total"
+              value={formatCurrency(reports.vendas.resumo.faturamento_total)}
+              icon="💰"
+            />
+            <ReportCard
+              title="Ticket Médio"
+              value={formatCurrency(reports.vendas.resumo.ticket_medio)}
+              icon="📊"
+            />
           </View>
-          <View className="flex-row justify-between text-xs text-slate-600">
-            <Text>
-              Faturamento: {formatCurrency(reports.vendas.resumo?.faturamento_total || 0)}
-            </Text>
-            <Text>
-              Ticket Médio: {formatCurrency(reports.vendas.resumo?.ticket_medio || 0)}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        )}
 
         {/* Locações */}
-        <TouchableOpacity
-          onPress={() => setSelectedReport(selectedReport === 'locacoes' ? null : 'locacoes')}
-          className="bg-white rounded-3xl p-6 shadow-sm"
-        >
-          <View className="flex-row items-center justify-between mb-4">
-            <View>
-              <Text className="text-slate-500 text-sm mb-1">🎪 Locações</Text>
-              <Text className="text-3xl font-bold text-purple-600">
-                {reports.locacoes.resumo?.total_locacoes || 0}
-              </Text>
-            </View>
-            <Text className="text-3xl">🎭</Text>
+        {selectedReport === 'locacoes' && reports.locacoes.resumo && (
+          <View className="space-y-4">
+            <Text className="text-2xl font-bold mb-4 text-slate-900">Resumo de Locações</Text>
+            <ReportCard
+              title="Total de Locações"
+              value={reports.locacoes.resumo.total_locacoes}
+              icon="📦"
+            />
+            <ReportCard
+              title="Locações Ativas"
+              value={reports.locacoes.resumo.ativas}
+              icon="✅"
+            />
+            <ReportCard
+              title="Locações Atrasadas"
+              value={reports.locacoes.resumo.atrasadas}
+              icon="⚠️"
+            />
+            <ReportCard
+              title="Devolvidas"
+              value={reports.locacoes.resumo.devolvidas}
+              icon="↩️"
+            />
           </View>
-          <View className="flex-row justify-between text-xs text-slate-600">
-            <Text>Ativas: {reports.locacoes.resumo?.ativas || 0}</Text>
-            <Text>Atrasadas: {reports.locacoes.resumo?.atrasadas || 0}</Text>
-          </View>
-        </TouchableOpacity>
+        )}
 
         {/* Produtos */}
-        <TouchableOpacity
-          onPress={() => setSelectedReport(selectedReport === 'produtos' ? null : 'produtos')}
-          className="bg-white rounded-3xl p-6 shadow-sm"
-        >
-          <View className="flex-row items-center justify-between mb-4">
-            <View>
-              <Text className="text-slate-500 text-sm mb-1">📦 Produtos</Text>
-              <Text className="text-3xl font-bold text-amber-600">
-                {reports.produtos.resumo?.total_produtos || 0}
-              </Text>
-            </View>
-            <Text className="text-3xl">🏷️</Text>
+        {selectedReport === 'produtos' && reports.produtos.resumo && (
+          <View className="space-y-4">
+            <Text className="text-2xl font-bold mb-4 text-slate-900">Resumo de Produtos</Text>
+            <ReportCard
+              title="Total de Produtos"
+              value={reports.produtos.resumo.total_produtos}
+              icon="🛍️"
+            />
+            <ReportCard
+              title="Valor Total em Estoque"
+              value={formatCurrency(reports.produtos.resumo.estoque_valor_total)}
+              icon="💵"
+            />
           </View>
-          <View className="flex-row justify-between text-xs text-slate-600">
-            <Text>
-              Estoque: {formatCurrency(reports.produtos.resumo?.estoque_valor_total || 0)}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        )}
 
-        {/* Botão Atualizar */}
-        <TouchableOpacity
-          onPress={onRefresh}
-          className="bg-gradient-to-r from-indigo-600 to-purple-600 py-4 rounded-3xl mt-6 mb-6"
-        >
-          <Text className="text-white text-center font-semibold text-lg">
-            🔄 Atualizar Relatórios
-          </Text>
-        </TouchableOpacity>
+        {/* Default: Show first available report */}
+        {!selectedReport && reports.financeiro.resumo && (
+          <View className="space-y-4">
+            <Text className="text-2xl font-bold mb-4 text-slate-900">Resumo Financeiro</Text>
+            <ReportCard
+              title="Total de Lançamentos"
+              value={reports.financeiro.resumo.total_lancamentos}
+              icon="📋"
+            />
+            <ReportCard
+              title="Total Débitos"
+              value={formatCurrency(reports.financeiro.resumo.total_debitos)}
+              icon="📉"
+            />
+            <ReportCard
+              title="Total Créditos"
+              value={formatCurrency(reports.financeiro.resumo.total_creditos)}
+              icon="📈"
+            />
+            <ReportCard
+              title="Total Pago"
+              value={formatCurrency(reports.financeiro.resumo.total_pago)}
+              icon="✅"
+            />
+            <ReportCard
+              title="Total Pendente"
+              value={formatCurrency(reports.financeiro.resumo.total_pendente)}
+              icon="⏳"
+            />
+          </View>
+        )}
       </View>
     </ScrollView>
+  );
+}
+
+function ReportCard({ title, value, icon }: { title: string; value: string | number; icon: string }) {
+  return (
+    <View className="bg-white rounded-3xl p-6 shadow-sm">
+      <View className="flex-row justify-between items-center">
+        <View className="flex-1">
+          <Text className="text-slate-600 text-sm mb-2">{title}</Text>
+          <Text className="text-2xl font-bold text-slate-900">{value}</Text>
+        </View>
+        <Text className="text-4xl">{icon}</Text>
+      </View>
+    </View>
   );
 }
