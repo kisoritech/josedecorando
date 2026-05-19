@@ -2,7 +2,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 
-import App from '../App';
+import App from './App';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();

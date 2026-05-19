@@ -1,13 +1,13 @@
 {
   "name": "josedecorando",
-  "main": "expo-router/entry",
+  "main": "./index",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --skip-dependency-verification",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
+    "android": "expo start --android --skip-dependency-verification",
+    "ios": "expo start --ios --skip-dependency-verification",
+    "web": "expo start --web --skip-dependency-verification",
     "lint": "expo lint"
   },
   "dependencies": {
