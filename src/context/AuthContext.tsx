@@ -38,6 +38,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadUser();
   }, []);
 
+  const getApiErrorMessage = (err: any, fallback: string) => {
+    return err.response?.data?.message || err.response?.data?.error || fallback;
+  };
+
+  const normalizeAuthResponse = (data: any) => {
+    return {
+      newToken: data?.token || data?.accessToken,
+      userData: data?.user || data?.usuario,
+    };
+  };
+
   const loadUser = async () => {
     try {
       const savedToken = await AsyncStorage.getItem('auth_token');
@@ -50,10 +61,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Valida token com a API
         try {
           const response = await api.get('/api/auth/me');
-          setUser(response.data);
-          await AsyncStorage.setItem('user_data', JSON.stringify(response.data));
+          const userData = response.data?.user || response.data?.usuario || response.data;
+          setUser(userData);
+          await AsyncStorage.setItem('user_data', JSON.stringify(userData));
           console.log('[Auth] Usuário carregado com sucesso');
-        } catch (apiError) {
+        } catch {
           // Token inválido, limpa dados
           console.warn('[Auth] Token expirado ou inválido');
           await AsyncStorage.removeItem('auth_token');
@@ -83,7 +95,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
       });
 
-      const { token: newToken, user: userData } = response.data;
+      const { newToken, userData } = normalizeAuthResponse(response.data);
 
       if (!newToken || !userData) {
         throw new Error('Resposta inválida da API: token ou usuário não recebido');
@@ -102,8 +114,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       let errorMessage = 'Falha ao fazer login';
       
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
+      if (err.response?.data?.message || err.response?.data?.error) {
+        errorMessage = getApiErrorMessage(err, errorMessage);
       } else if (err.response?.status === 401) {
         errorMessage = 'Email ou senha incorretos';
       } else if (err.response?.status === 404) {
@@ -135,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         perfil,
       });
 
-      const { token: newToken, user: userData } = response.data;
+      const { newToken, userData } = normalizeAuthResponse(response.data);
 
       if (!newToken || !userData) {
         throw new Error('Resposta inválida da API: token ou usuário não recebido');
@@ -154,8 +166,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       let errorMessage = 'Falha ao registrar';
       
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
+      if (err.response?.data?.message || err.response?.data?.error) {
+        errorMessage = getApiErrorMessage(err, errorMessage);
       } else if (err.response?.status === 409) {
         errorMessage = 'Email já cadastrado';
       } else if (err.response?.status === 422) {

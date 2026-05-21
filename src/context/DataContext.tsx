@@ -1,5 +1,6 @@
-import React, { createContext, ReactNode, useEffect, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useEffect, useState } from 'react';
 import api from '../api/api';
+import { useAuth } from './AuthContext';
 
 // Dashboard Data
 export interface DashboardData {
@@ -107,6 +108,7 @@ interface DataProviderProps {
 }
 
 export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
+  const { user, token } = useAuth();
   // Dashboard State
   const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [dashboardLoading, setDashboardLoading] = useState(false);
@@ -136,7 +138,25 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Load Dashboard
-  const loadDashboard = async () => {
+  const resetData = useCallback(() => {
+    setDashboard(null);
+    setProducts([]);
+    setMovements([]);
+    setReports({
+      financeiro: {},
+      vendas: {},
+      locacoes: {},
+      produtos: {},
+    });
+    setDashboardError(null);
+    setProductsError(null);
+    setMovementsError(null);
+    setReportsError(null);
+  }, []);
+
+  const loadDashboard = useCallback(async () => {
+    if (!token) return;
+
     try {
       setDashboardLoading(true);
       setDashboardError(null);
@@ -150,10 +170,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setDashboardLoading(false);
     }
-  };
+  }, [token]);
 
   // Load Products
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
+    if (!token) return;
+
     try {
       setProductsLoading(true);
       setProductsError(null);
@@ -167,10 +189,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setProductsLoading(false);
     }
-  };
+  }, [token]);
 
   // Load Movements
-  const loadMovements = async () => {
+  const loadMovements = useCallback(async () => {
+    if (!token) return;
+
     try {
       setMovementsLoading(true);
       setMovementsError(null);
@@ -184,10 +208,12 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setMovementsLoading(false);
     }
-  };
+  }, [token]);
 
   // Load Reports
-  const loadReports = async () => {
+  const loadReports = useCallback(async () => {
+    if (!token) return;
+
     try {
       setReportsLoading(true);
       setReportsError(null);
@@ -213,10 +239,15 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setReportsLoading(false);
     }
-  };
+  }, [token]);
 
   // Refresh all data
-  const refreshAllData = async () => {
+  const refreshAllData = useCallback(async () => {
+    if (!token) {
+      resetData();
+      return;
+    }
+
     try {
       setIsRefreshing(true);
       await Promise.all([loadDashboard(), loadProducts(), loadMovements(), loadReports()]);
@@ -226,13 +257,18 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [loadDashboard, loadMovements, loadProducts, loadReports, resetData, token]);
 
   // Load initial data when context is ready
   useEffect(() => {
-    console.log('[Data] Inicializando DataContext, carregando dados iniciais...');
-    refreshAllData();
-  }, []);
+    if (user && token) {
+      console.log('[Data] Usuario autenticado, carregando dados iniciais...');
+      refreshAllData();
+      return;
+    }
+
+    resetData();
+  }, [refreshAllData, resetData, token, user]);
 
   return (
     <DataContext.Provider

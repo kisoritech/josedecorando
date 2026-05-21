@@ -23,10 +23,9 @@ npm start
 - **Celular**: Escanear QR code com Expo Go
 
 ### 4️⃣ **Faça Login**
-```
-Email: teste@email.com
-Senha: 123456
-```
+Use um usuário válido cadastrado na API configurada em `.env`.
+
+> Observação: as credenciais antigas `teste@email.com` / `123456` foram testadas em 21/05/2026 e a API retornou `Credenciais invalidas`.
 
 ✅ **Pronto!** Você está dentro do app.
 

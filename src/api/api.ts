@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { create, isAxiosError } from 'axios';
 
 // Configuração da API
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
@@ -10,7 +10,7 @@ console.log('[API Config] URL:', API_URL);
 console.log('[API Config] Timeout:', API_TIMEOUT, 'ms');
 console.log('[API Config] Debug Mode:', DEBUG_MODE);
 
-const api = axios.create({
+const api = create({
   baseURL: API_URL,
   timeout: API_TIMEOUT,
   headers: {
@@ -99,7 +99,7 @@ api.interceptors.response.use(
 
 // Função auxiliar para logging
 export function logApiError(error: unknown, context: string): void {
-  if (axios.isAxiosError(error)) {
+  if (isAxiosError(error)) {
     console.error(`[${context}] Erro na API:`, {
       status: error.response?.status,
       statusText: error.response?.statusText,

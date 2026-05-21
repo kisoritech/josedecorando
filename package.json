@@ -1,14 +1,15 @@
 {
   "name": "josedecorando",
-  "main": "./index",
+  "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --skip-dependency-verification",
+    "start": "node ./scripts/start-expo.js",
+    "start:doctor": "npx expo start",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android --skip-dependency-verification",
-    "ios": "expo start --ios --skip-dependency-verification",
-    "web": "expo start --web --skip-dependency-verification",
-    "lint": "expo lint"
+    "android": "node ./scripts/start-expo.js --android",
+    "ios": "node ./scripts/start-expo.js --ios",
+    "web": "node ./scripts/start-expo.js --web",
+    "lint": "npx expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
