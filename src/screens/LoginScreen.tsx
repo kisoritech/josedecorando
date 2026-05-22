@@ -273,17 +273,6 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Footer */}
-            <Text
-              style={{
-                color: 'rgba(255, 255, 255, 0.7)',
-                fontSize: 12,
-                marginTop: 32,
-                textAlign: 'center',
-              }}
-            >
-              API: {process.env.EXPO_PUBLIC_API_URL}
-            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
