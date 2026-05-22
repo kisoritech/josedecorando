@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -14,6 +15,8 @@ import {
 import { BRAND } from '../../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { isValidEmail } from '../utils/formatting';
+
+const jdeLogo = require('../../assets/images/jde-logo.png');
 
 export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
@@ -90,29 +93,17 @@ export default function LoginScreen() {
               paddingVertical: 40,
             }}
           >
-            {/* Logo */}
-            <View style={{ alignItems: 'center', marginBottom: 48, marginTop: 32 }}>
-              <View
+            <View style={{ alignItems: 'center', marginBottom: 28, marginTop: 18 }}>
+              <Image
+                source={jdeLogo}
+                resizeMode="contain"
                 style={{
-                  width: 128,
-                  height: 128,
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderRadius: 32,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 24,
-                  borderWidth: 2,
-                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  width: 210,
+                  height: 210,
+                  borderRadius: 24,
+                  backgroundColor: 'rgba(255, 255, 255, 0.94)',
                 }}
-              >
-                <Text style={{ fontSize: 56 }}>🎉</Text>
-              </View>
-              <Text style={{ color: 'white', fontSize: 32, fontWeight: 'bold', letterSpacing: 1 }}>
-                JDE
-              </Text>
-              <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 16, marginTop: 8 }}>
-                Jose Decorando Encantando
-              </Text>
+              />
             </View>
 
             {/* Form Card */}

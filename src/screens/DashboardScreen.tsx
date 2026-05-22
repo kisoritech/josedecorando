@@ -1,19 +1,15 @@
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback } from 'react';
-import {
-    ActivityIndicator,
-    RefreshControl,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BRAND } from '../../constants/theme';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { formatCurrency } from '../utils/formatting';
 
-export default function DashboardScreen() {
+type RouteKey = 'inicio' | 'venda' | 'locacao' | 'clientes' | 'produtos' | 'movimentos' | 'relatorios';
+
+export default function DashboardScreen({ onNavigate }: { onNavigate?: (route: RouteKey) => void }) {
   const { user } = useAuth();
   const { dashboard, dashboardLoading, dashboardError, loadDashboard, isRefreshing, refreshAllData } = useData();
 
@@ -23,7 +19,7 @@ export default function DashboardScreen() {
 
   if (dashboardLoading && !dashboard) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color={BRAND.primary} />
       </View>
     );
@@ -31,23 +27,11 @@ export default function DashboardScreen() {
 
   if (dashboardError && !dashboard) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F9FAFB', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, textAlign: 'center', color: '#EF4444' }}>
-          ⚠️ Erro ao Carregar
-        </Text>
-        <Text style={{ fontSize: 16, textAlign: 'center', color: '#6B7280', marginBottom: 24 }}>
-          {dashboardError}
-        </Text>
-        <TouchableOpacity
-          style={{
-            backgroundColor: BRAND.primary,
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-            borderRadius: 8,
-          }}
-          onPress={loadDashboard}
-        >
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Tentar Novamente</Text>
+      <View style={styles.centeredContent}>
+        <Text style={styles.errorTitle}>Erro ao carregar</Text>
+        <Text style={styles.errorText}>{dashboardError}</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={loadDashboard}>
+          <Text style={styles.retryText}>Tentar novamente</Text>
         </TouchableOpacity>
       </View>
     );
@@ -55,205 +39,248 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: '#F9FAFB' }}
-      refreshControl={
-        <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND.primary} />
-      }
+      style={styles.container}
+      refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={BRAND.primary} />}
     >
-      {/* Header com Gradiente e Logo */}
-      <LinearGradient
-        colors={[BRAND.primary, BRAND.secondary]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ paddingTop: 48, paddingBottom: 32, paddingHorizontal: 24 }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: 28,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 32 }}>🎉</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: 'white', fontSize: 28, fontWeight: 'bold' }}>JDE</Text>
-            <Text style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: 14 }}>
-              Jose Decorando Encantando
-            </Text>
-          </View>
-        </View>
-        <Text style={{ color: 'white', fontSize: 18 }}>
-          Olá, <Text style={{ fontWeight: 'bold' }}>{user?.nome || 'Usuário'}</Text> 👋
-        </Text>
+      <LinearGradient colors={[BRAND.primary, BRAND.secondary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+        <Text style={styles.kicker}>Jose Decorando Encantando</Text>
+        <Text style={styles.title}>Olá, {user?.nome || 'usuário'}</Text>
+        <Text style={styles.subtitle}>Um resumo rápido do app para você ir direto para venda, locação ou cadastros.</Text>
       </LinearGradient>
 
-      {/* Cards Principais */}
-      <View style={{ paddingHorizontal: 24, paddingVertical: 24, gap: 16 }}>
-        {/* Faturamento Total */}
-        <View
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 24,
-            padding: 24,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            elevation: 3,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ color: '#6B7280', fontSize: 14, marginBottom: 8 }}>
-                Faturamento Total
-              </Text>
-              <Text style={{ fontSize: 32, fontWeight: 'bold', color: BRAND.success }}>
-                {formatCurrency(dashboard?.faturamento_total || 0)}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 40 }}>💰</Text>
-          </View>
+      <View style={styles.content}>
+        <View style={styles.metricsGrid}>
+          <MetricCard title="Faturamento" value={formatCurrency(dashboard?.faturamento_total || 0)} icon="payments" color={BRAND.success} />
+          <MetricCard title="Produtos" value={dashboard?.total_produtos || '0'} icon="inventory-2" color={BRAND.secondary} />
+          <MetricCard title="Clientes" value={dashboard?.total_clientes || '0'} icon="groups" color={BRAND.accent} />
+          <MetricCard title="Locações" value={dashboard?.locacoes_ativas || '0'} icon="event-available" color={BRAND.gold} />
         </View>
 
-        {/* Grid 2 colunas */}
-        <View style={{ flexDirection: 'row', gap: 16 }}>
-          {/* Produtos */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'white',
-              borderRadius: 24,
-              padding: 20,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 3,
-              elevation: 3,
-            }}
-          >
-            <Text style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Produtos</Text>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: BRAND.secondary, marginBottom: 4 }}>
-              {dashboard?.total_produtos}
-            </Text>
-            <Text style={{ fontSize: 12, color: '#9CA3AF' }}>
-              {dashboard?.produtos_disponiveis} disponíveis
-            </Text>
-          </View>
-
-          {/* Clientes */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'white',
-              borderRadius: 24,
-              padding: 20,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 3,
-              elevation: 3,
-            }}
-          >
-            <Text style={{ color: '#6B7280', fontSize: 12, marginBottom: 8 }}>Clientes</Text>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', color: BRAND.accent, marginBottom: 4 }}>
-              {dashboard?.total_clientes}
-            </Text>
-            <Text style={{ fontSize: 12, color: '#9CA3AF' }}>Cadastrados</Text>
-          </View>
+        <Text style={styles.sectionTitle}>Acessos principais</Text>
+        <View style={styles.quickFlex}>
+          <QuickAction title="Nova venda" icon="point-of-sale" onPress={() => onNavigate?.('venda')} />
+          <QuickAction title="Nova locação" icon="event-available" onPress={() => onNavigate?.('locacao')} />
+          <QuickAction title="Relatórios" icon="bar-chart" onPress={() => onNavigate?.('relatorios')} />
+          <QuickAction title="Produtos" icon="inventory-2" onPress={() => onNavigate?.('produtos')} />
         </View>
 
-        {/* Locações Ativas */}
-        <View
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 24,
-            padding: 24,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            elevation: 3,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ color: '#6B7280', fontSize: 14, marginBottom: 8 }}>
-                Locações Ativas
-              </Text>
-              <Text style={{ fontSize: 32, fontWeight: 'bold', color: BRAND.gold }}>
-                {dashboard?.locacoes_ativas}
-              </Text>
-            </View>
-            <Text style={{ fontSize: 40 }}>📦</Text>
-          </View>
+        <Text style={styles.sectionTitle}>Mais opções</Text>
+        <View style={styles.connectedBox}>
+          <QuickAction title="Clientes" icon="groups" onPress={() => onNavigate?.('clientes')} compact />
+          <QuickAction title="Movimentos" icon="sync-alt" onPress={() => onNavigate?.('movimentos')} compact />
+          <QuickAction title="Cadastrar produto" icon="add-box" onPress={() => onNavigate?.('produtos')} compact />
+          <QuickAction title="Cadastrar cliente" icon="person-add" onPress={() => onNavigate?.('clientes')} compact />
         </View>
 
-        {/* Pagamentos */}
-        <View
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 24,
-            padding: 24,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 3,
-            elevation: 3,
-          }}
-        >
-          <Text style={{ color: '#1F2937', fontWeight: 'bold', marginBottom: 16, fontSize: 16 }}>
-            Pagamentos
-          </Text>
-          <View style={{ gap: 12 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                paddingBottom: 12,
-                borderBottomWidth: 1,
-                borderBottomColor: '#E5E7EB',
-              }}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text style={{ fontSize: 24 }}>📱</Text>
-                <Text style={{ color: '#1F2937' }}>PIX Recebido</Text>
-              </View>
-              <Text style={{ fontWeight: '600', color: BRAND.success }}>
-                {formatCurrency(dashboard?.total_pix || 0)}
-              </Text>
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text style={{ fontSize: 24 }}>💵</Text>
-                <Text style={{ color: '#1F2937' }}>Dinheiro</Text>
-              </View>
-              <Text style={{ fontWeight: '600', color: BRAND.gold }}>
-                {formatCurrency(dashboard?.total_dinheiro || 0)}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Botão Atualizar */}
-        <LinearGradient
-          colors={[BRAND.primary, BRAND.accent]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 24, marginTop: 16, marginBottom: 16 }}
-        >
-          <TouchableOpacity onPress={onRefresh} style={{ paddingVertical: 16 }}>
-            <Text style={{ color: 'white', textAlign: 'center', fontWeight: 'bold', fontSize: 16 }}>
-              🔄 Atualizar Dashboard
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient>
+        <TouchableOpacity style={styles.updateButton} onPress={onRefresh}>
+          <MaterialIcons name="refresh" size={20} color="#FFFFFF" />
+          <Text style={styles.updateButtonText}>Atualizar resumo</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
+
+function MetricCard({
+  title,
+  value,
+  icon,
+  color,
+}: {
+  title: string;
+  value: string | number;
+  icon: keyof typeof MaterialIcons.glyphMap;
+  color: string;
+}) {
+  return (
+    <View style={styles.metricCard}>
+      <View style={[styles.metricIcon, { backgroundColor: `${color}20` }]}>
+        <MaterialIcons name={icon} size={22} color={color} />
+      </View>
+      <Text style={styles.metricTitle}>{title}</Text>
+      <Text style={styles.metricValue}>{value}</Text>
+    </View>
+  );
+}
+
+function QuickAction({
+  title,
+  icon,
+  onPress,
+  compact = false,
+}: {
+  title: string;
+  icon: keyof typeof MaterialIcons.glyphMap;
+  onPress: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <TouchableOpacity style={[styles.quickAction, compact && styles.quickActionCompact]} onPress={onPress}>
+      <MaterialIcons name={icon} size={24} color={BRAND.primary} />
+      <Text style={styles.quickActionText}>{title}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  centeredContent: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 24,
+  },
+  header: {
+    paddingTop: 44,
+    paddingBottom: 30,
+    paddingHorizontal: 22,
+  },
+  kicker: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 13,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 30,
+    fontWeight: '900',
+    marginTop: 8,
+  },
+  subtitle: {
+    color: 'rgba(255,255,255,0.86)',
+    fontSize: 15,
+    lineHeight: 22,
+    marginTop: 8,
+  },
+  content: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  metricCard: {
+    width: '48%',
+    minHeight: 126,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  metricIcon: {
+    width: 38,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  metricTitle: {
+    color: '#64748B',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  metricValue: {
+    color: '#111827',
+    fontSize: 22,
+    fontWeight: '900',
+    marginTop: 4,
+  },
+  sectionTitle: {
+    color: '#111827',
+    fontSize: 20,
+    fontWeight: '900',
+    marginTop: 22,
+    marginBottom: 12,
+  },
+  quickFlex: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  connectedBox: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+  },
+  quickAction: {
+    flexGrow: 1,
+    flexBasis: '47%',
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+  },
+  quickActionCompact: {
+    backgroundColor: '#F8FAFC',
+  },
+  quickActionText: {
+    color: '#111827',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  updateButton: {
+    minHeight: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderRadius: 8,
+    backgroundColor: BRAND.primary,
+    marginTop: 18,
+  },
+  updateButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 16,
+  },
+  errorTitle: {
+    color: '#DC2626',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 10,
+  },
+  errorText: {
+    color: '#64748B',
+    textAlign: 'center',
+    fontSize: 16,
+    marginBottom: 18,
+  },
+  retryButton: {
+    borderRadius: 8,
+    backgroundColor: BRAND.primary,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  retryText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
+});

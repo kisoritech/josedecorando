@@ -34,6 +34,7 @@ export interface Cliente {
   id: number;
   tipo_pessoa: 'fisica' | 'juridica';
   nome: string;
+  cpf_cnpj?: string;
   email?: string;
   telefone?: string;
   ativo: boolean;
@@ -43,6 +44,7 @@ export interface Cliente {
 export interface ClienteForm {
   tipo_pessoa: 'fisica' | 'juridica';
   nome: string;
+  cpf_cnpj?: string;
   email?: string;
   telefone?: string;
 }
