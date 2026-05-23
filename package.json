@@ -9,7 +9,12 @@
     "android": "node ./scripts/start-expo.js --android",
     "ios": "node ./scripts/start-expo.js --ios",
     "web": "node ./scripts/start-expo.js --web",
-    "lint": "npx expo lint"
+    "lint": "npx expo lint",
+    "build:android:apk": "eas build -p android --profile preview",
+    "build:android:aab": "eas build -p android --profile production",
+    "update:development": "eas update --channel development",
+    "update:preview": "eas update --channel preview",
+    "update:production": "eas update --channel production"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -31,6 +36,7 @@
     "expo-status-bar": "~3.0.9",
     "expo-symbols": "~1.0.8",
     "expo-system-ui": "~6.0.9",
+    "expo-updates": "~29.0.17",
     "expo-web-browser": "~15.0.10",
     "jwt-decode": "^4.0.0",
     "lucide-react-native": "^1.16.0",

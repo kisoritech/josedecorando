@@ -7,12 +7,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from '../src/context/AuthContext';
 import { DataProvider } from '../src/context/DataContext';
+import { checkForAppUpdate } from '../src/services/updateService';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync();
+    checkForAppUpdate();
   }, []);
 
   return (
